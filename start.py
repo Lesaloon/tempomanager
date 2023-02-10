@@ -7,20 +7,28 @@
 # the raspberry pi is connected to the linky with a usb to serial converter
 
 # Exemple de trame:
-# {
-#  'BASE': '123456789'       # Index heure de base en Wh
-#  'OPTARIF': 'HC..',        # Option tarifaire HC/BASE
-#  'IMAX': '007',            # Intensité max
-#  'HCHC': '040177099',      # Index heure creuse en Wh
-#  'IINST': '005',           # Intensité instantanée en A
-#  'PAPP': '01289',          # Puissance Apparente, en VA
-#  'MOTDETAT': '000000',     # Mot d'état du compteur
-#  'HHPHC': 'A',             # Horaire Heures Pleines Heures Creuses
-#  'ISOUSC': '45',           # Intensité souscrite en A
-#  'ADCO': '000000000000',   # Adresse du compteur
-#  'HCHP': '035972694',      # index heure pleine en Wh
-#  'PTEC': 'HP..'            # Période tarifaire en cours
-# }
+# ♥☻OT 00 #
+# ADCO 000000000000 L // adresse du compteur
+# OPTARIF BBR( S // option tarifaire
+# ISOUSC 50 ; // intensité souscrite ( A )
+# BBRHCJB 001964280 ;  // index heures creuses jours bleus ( / 1000 )
+# BBRHPJB 002436107 A // index heures pleines jours bleus ( / 1000 )
+# BBRHCJW 000681329 O // index heures creuses jours blancs ( / 1000 )
+# BBRHPJW 000839029 ^ // index heures pleines jours blancs ( / 1000 )
+# BBRHCJR 000921512 A // index heures creuses jours rouges ( / 1000 )
+# BBRHPJR 000226574 T // index heures pleines jours rouges ( / 1000 )
+# PTEC HPJR // période tarifaire en cours (Heures Pleines Jours Rouges)
+# DEMAIN ---- " // couleur du lendemain
+# IINST1 000 H // intensité instantanée phase 1
+# IINST2 002 K // intensité instantanée phase 2
+# IINST3 002 L // intensité instantanée phase 3
+# IMAX1 060 6 // intensité maximale phase 1
+# IMAX2 060 7 // intensité maximale phase 2
+# IMAX3 060 8 // intensité maximale phase 3
+# PMAX 14054 4 // puissance maximale atteinte sur la période de relevé ( 24h )
+# PAPP 01070 ) // puissance apparente soutirée
+# HHPHC A , // Horaire Heures Pleines Heures Creuses ( groupe horaire )
+# MOTDETAT 000000 B // état du compteur
 
 
 # import the needed libraries
@@ -38,7 +46,8 @@ import logging
 # configuration
 FREQUENCY=10
 DB_NAME="linky"
-INT_MESURE_KEYS = ['BASE', 'IMAX', 'HCHC', 'IINST', 'PAPP', 'ISOUSC', 'ADCO', 'HCHP']
+INT_MEASURES = ["ISOUSC", "IINST1", "IINST2", "IINST3", "IMAX1", "IMAX2", "IMAX3", "PMAX", "PAPP",]
+FLOAT_MEASURES = ["BBRHCJB", "BBRHPJB", "BBRHCJW", "BBRHPJW", "BBRHCJR", "BBRHPJR"]
 
 # serial port configuration ( 9600 7E1 )
 ser = serial.Serial(
@@ -132,7 +141,13 @@ with serial.Serial(port='/dev/ttyS0', baudrate=1200, parity=serial.PARITY_NONE, 
 
 			if verif_checksum(f"{key} {val}", checksum):
 				# creation du champ pour la trame en cours avec cast des valeurs de mesure en "integer"
-				trame[key] = int(val) if key in INT_MESURE_KEYS else val
+				if key in INT_MEASURES:
+					trame[key] = int(val)
+				elif key in FLOAT_MEASURES:
+					trame[key] = float(val) / 1000
+				else:
+					trame[key] = val
+				#trame[key] = int(val) if key in INT_MESURE_KEYS else val
 
 			if b'\x03' in line:  # si caractère de fin dans la ligne, on insère la trame dans influx
 				del trame['ADCO']  # adresse du compteur : confidentiel!

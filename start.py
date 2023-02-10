@@ -6,36 +6,11 @@
 # the database is hosted on a raspberry pi 3b+ with a InfluxDB server
 # the raspberry pi is connected to the linky with a usb to serial converter
 
-# Exemple de trame:
-# ♥☻OT 00 #
-# ADCO 000000000000 L // adresse du compteur
-# OPTARIF BBR( S // option tarifaire
-# ISOUSC 50 ; // intensité souscrite ( A )
-# BBRHCJB 001964280 ;  // index heures creuses jours bleus ( / 1000 )
-# BBRHPJB 002436107 A // index heures pleines jours bleus ( / 1000 )
-# BBRHCJW 000681329 O // index heures creuses jours blancs ( / 1000 )
-# BBRHPJW 000839029 ^ // index heures pleines jours blancs ( / 1000 )
-# BBRHCJR 000921512 A // index heures creuses jours rouges ( / 1000 )
-# BBRHPJR 000226574 T // index heures pleines jours rouges ( / 1000 )
-# PTEC HPJR // période tarifaire en cours (Heures Pleines Jours Rouges)
-# DEMAIN ---- " // couleur du lendemain
-# IINST1 000 H // intensité instantanée phase 1
-# IINST2 002 K // intensité instantanée phase 2
-# IINST3 002 L // intensité instantanée phase 3
-# IMAX1 060 6 // intensité maximale phase 1
-# IMAX2 060 7 // intensité maximale phase 2
-# IMAX3 060 8 // intensité maximale phase 3
-# PMAX 14054 4 // puissance maximale atteinte sur la période de relevé ( 24h )
-# PAPP 01070 ) // puissance apparente soutirée
-# HHPHC A , // Horaire Heures Pleines Heures Creuses ( groupe horaire )
-# MOTDETAT 000000 B // état du compteur
-
 
 # import the needed libraries
 import serial
 import time
 import datetime
-import json
 import requests
 from influxdb import InfluxDBClient
 import logging
@@ -46,21 +21,6 @@ FREQUENCY=10
 DB_NAME="linky"
 INT_MEASURES = ["ISOUSC", "IINST1", "IINST2", "IINST3", "IMAX1", "IMAX2", "IMAX3", "PMAX", "PAPP",]
 FLOAT_MEASURES = ["BBRHCJB", "BBRHPJB", "BBRHCJW", "BBRHPJW", "BBRHCJR", "BBRHPJR"]
-
-# serial port configuration ( 9600 7E1 )
-print("Teleinfo is initializing..")
-ser = serial.Serial(
-	port='/dev/ttyUSB0',
-	baudrate=1200,
-	parity=serial.PARITY_EVEN,
-	stopbits=serial.STOPBITS_ONE,
-	bytesize=serial.SEVENBITS
-)
-
-# if the serial port is not open, open it
-if not ser.isOpen():
-	print("Teleinfo is opening /dev/ttyS0..")
-	ser.open()
 
 # Connect to the database
 print("Database %s connection.." % DB_NAME)
@@ -112,11 +72,18 @@ def verif_checksum(data, checksum):
 	sum_unicode = (data_unicode & 63) + 32
 	return (checksum == chr(sum_unicode))
 
+initser = serial.Serial(
+	port='/dev/ttyUSB0',
+	baudrate=1200,
+	parity=serial.PARITY_EVEN,
+	stopbits=serial.STOPBITS_ONE,
+	bytesize=serial.SEVENBITS
+).open()
 
 # main loop
-with serial.Serial(port='/dev/ttyS0', baudrate=1200, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.SEVENBITS, timeout=1) as ser:
+with initser as ser:
 
-	logging.info("Teleinfo is reading on /dev/ttyS0..")
+	logging.info("Teleinfo is reading on /dev/ttyUSB0..")
 
 	trame = dict()
 

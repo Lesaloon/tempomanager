@@ -78,7 +78,7 @@ initser = serial.Serial(
 	parity=serial.PARITY_EVEN,
 	stopbits=serial.STOPBITS_ONE,
 	bytesize=serial.SEVENBITS
-).open()
+)
 
 # main loop
 with initser as ser:

@@ -6,6 +6,29 @@
 # the database is hosted on a raspberry pi 3b+ with a InfluxDB server
 # the raspberry pi is connected to the linky with a usb to serial converter
 
+# Exemple de trame:
+# ♥☻OT 00 #
+# ADCO 000000000000 L // adresse du compteur
+# OPTARIF BBR( S // option tarifaire
+# ISOUSC 50 ; // intensité souscrite ( A )
+# BBRHCJB 001964280 ;  // index heures creuses jours bleus ( / 1000 )
+# BBRHPJB 002436107 A // index heures pleines jours bleus ( / 1000 )
+# BBRHCJW 000681329 O // index heures creuses jours blancs ( / 1000 )
+# BBRHPJW 000839029 ^ // index heures pleines jours blancs ( / 1000 )
+# BBRHCJR 000921512 A // index heures creuses jours rouges ( / 1000 )
+# BBRHPJR 000226574 T // index heures pleines jours rouges ( / 1000 )
+# PTEC HPJR // période tarifaire en cours (Heures Pleines Jours Rouges)
+# DEMAIN ---- " // couleur du lendemain
+# IINST1 000 H // intensité instantanée phase 1
+# IINST2 002 K // intensité instantanée phase 2
+# IINST3 002 L // intensité instantanée phase 3
+# IMAX1 060 6 // intensité maximale phase 1
+# IMAX2 060 7 // intensité maximale phase 2
+# IMAX3 060 8 // intensité maximale phase 3
+# PMAX 14054 4 // puissance maximale atteinte sur la période de relevé ( 24h )
+# PAPP 01070 ) // Puissance apparente soutirée
+# HHPHC A , // Horaire Heures Pleines Heures Creuses ( groupe horaire )
+# MOTDETAT 000000 B // état du compteur
 
 # import the needed libraries
 import serial
@@ -21,6 +44,7 @@ FREQUENCY=10
 DB_NAME="linky"
 INT_MEASURES = ["ISOUSC", "IINST1", "IINST2", "IINST3", "IMAX1", "IMAX2", "IMAX3", "PMAX", "PAPP",]
 FLOAT_MEASURES = ["BBRHCJB", "BBRHPJB", "BBRHCJW", "BBRHPJW", "BBRHCJR", "BBRHPJR"]
+STRING_MEASURES = ["OPTARIF", "PTEC", "DEMAIN", "HHPHC", "MOTDETAT"]
 
 # Connect to the database
 print("Database %s connection.." % DB_NAME)
@@ -113,6 +137,8 @@ with initser as ser:
 					trame[key] = int(val)
 				elif key in FLOAT_MEASURES:
 					trame[key] = float(val) / 1000
+				elif key in STRING_MEASURES:
+					trame[key] = val
 				else:
 					trame[key] = val
 				#trame[key] = int(val) if key in INT_MESURE_KEYS else val

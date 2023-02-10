@@ -10,7 +10,7 @@
 # import the needed libraries
 import serial
 import time
-import datetime
+from datetime import datetime
 import requests
 from influxdb import InfluxDBClient
 import logging

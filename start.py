@@ -41,8 +41,6 @@ from influxdb import InfluxDBClient
 import logging
 
 
-
-
 # configuration
 FREQUENCY=10
 DB_NAME="linky"
@@ -50,6 +48,7 @@ INT_MEASURES = ["ISOUSC", "IINST1", "IINST2", "IINST3", "IMAX1", "IMAX2", "IMAX3
 FLOAT_MEASURES = ["BBRHCJB", "BBRHPJB", "BBRHCJW", "BBRHPJW", "BBRHCJR", "BBRHPJR"]
 
 # serial port configuration ( 9600 7E1 )
+print("Teleinfo is initializing..")
 ser = serial.Serial(
 	port='/dev/ttyUSB0',
 	baudrate=1200,
@@ -60,9 +59,11 @@ ser = serial.Serial(
 
 # if the serial port is not open, open it
 if not ser.isOpen():
+	print("Teleinfo is opening /dev/ttyS0..")
 	ser.open()
 
 # Connect to the database
+print("Database %s connection.." % DB_NAME)
 client = InfluxDBClient('localhost', 8086)
 connected = False
 while not connected:

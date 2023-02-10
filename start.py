@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # using a serial input to get the telemetry data from the linky ( french smart meter ) and send it to a InfluxDB database to be used by grafana
 # log every information hold the timestamp and the data
 # the data is stored in a json format

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #a simple program to parse the serial input 
 
 import serial

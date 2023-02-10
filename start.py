@@ -42,7 +42,7 @@ INT_MESURE_KEYS = ['BASE', 'IMAX', 'HCHC', 'IINST', 'PAPP', 'ISOUSC', 'ADCO', 'H
 # serial port configuration ( 9600 7N1 )
 ser = serial.Serial(
     port='/dev/ttyUSB0',
-    baudrate=9600,
+    baudrate=1200,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
     bytesize=serial.SEVENBITS

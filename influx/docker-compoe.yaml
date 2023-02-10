@@ -1,0 +1,20 @@
+version: "3.8"
+env_file:
+	- .env
+services:
+	influxdb:
+		image: influxdb:1.8.10
+		container_name: influxdb
+		restart: always
+		ports:
+			- 8086:8086
+		volumes:
+			- influxdb:/var/lib/influxdb
+		environment:
+			- INFLUXDB_DB=DB
+			- INFLUXDB_ADMIN_USER=ADMIN_USER
+			- INFLUXDB_ADMIN_PASSWORD=ADMIN_PASSWORD
+			- INFLUXDB_USER=USER
+			- INFLUXDB_USER_PASSWORD=USER_PASSWORD
+		networks:
+			- influxdb

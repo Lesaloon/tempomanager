@@ -35,7 +35,6 @@ while True:
 	line_str = line.decode('utf-8')
 
 	try:
-		
 		[key, val, *_] = line_str.split(" ")
 		# validate the line
 		checksum = (line.replace('\x03\x02', ''))[-3:-2]

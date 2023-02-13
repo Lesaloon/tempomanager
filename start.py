@@ -88,6 +88,16 @@ def add_measures(measures, time_measure):
 
 	client.write_points(points)
 
+def modify_data(trame):
+	for key, value in trame.items():
+		# si la clé est DEMAIN
+		if key == "DEMAIN":
+			# si on est entre 20h05 et 6h
+			if ((20 * 60 * 60) + (5 * 60)) < (time.time() % (24 * 3600)) < (6 * 3600):
+				# si la valeur est ----
+				if value == "----":
+					trame[key] = "BLEU"
+	return trame
 
 def verif_checksum(data, checksum):
 	data_unicode = 0
@@ -143,6 +153,9 @@ with initser as ser:
 					trame[key] = val
 				#trame[key] = int(val) if key in INT_MESURE_KEYS else val
 
+			# modification des données pour influxdb
+			trame = modify_data(trame)
+
 			if b'\x03' in line:  # si caractère de fin dans la ligne, on insère la trame dans influx
 				del trame['ADCO']  # adresse du compteur : confidentiel!
 				time_measure = time.time()
@@ -159,5 +172,4 @@ with initser as ser:
 			logging.error("Exception : %s" % e, exc_info=True)
 			logging.error("%s %s" % (key, val))
 		line = ser.readline()
-
 

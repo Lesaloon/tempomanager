@@ -6,6 +6,9 @@
 # the database is hosted on a raspberry pi 3b+ with a InfluxDB server
 # the raspberry pi is connected to the linky with a usb to serial converter
 
+# this program also comunicate with an ADC+PGA I2C board to get the current of a solar panel and send it to the database
+# the board is connected to the raspberry pi with the I2C bus
+
 # Exemple de trame:
 # ♥☻OT 00 #
 # ADCO 000000000000 L // adresse du compteur
@@ -37,6 +40,17 @@ from datetime import datetime
 import requests
 from influxdb import InfluxDBClient
 import logging
+# import the needed libraries for the ADC
+import board
+import busio
+import adafruit_ads1x15.ads1015 as ADS
+from adafruit_ads1x15.analog_in import AnalogIn
+
+# configure the ADC+PGA I2C board
+i2c = busio.I2C(board.SCL, board.SDA)
+ads = ADS.ADS1015(i2c)
+solar1 = AnalogIn(ads, ADS.P0)
+solar2 = AnalogIn(ads, ADS.P1)
 
 
 # configuration
@@ -97,6 +111,20 @@ def modify_data(trame):
 				# si la valeur est ----
 				if value == "----":
 					trame[key] = "BLEU"
+
+	# add the solar panel data
+
+	# convert the voltage to a current
+	# the voltage is between 0 and 3.3V
+	# the current is between 0 and 15*3.3 = 49.5A
+	#the clamp is a 15a/1v clamp
+	current1 = solar1.voltage * 15
+	current2 = solar2.voltage * 15
+
+	# add the current to the trame
+	trame["ISOL1"] = current1
+	trame["ISOL2"] = current2
+
 	return trame
 
 def verif_checksum(data, checksum):
@@ -153,12 +181,13 @@ with initser as ser:
 					trame[key] = val
 				#trame[key] = int(val) if key in INT_MESURE_KEYS else val
 
-			# modification des données pour influxdb
-			trame = modify_data(trame)
 
 			if b'\x03' in line:  # si caractère de fin dans la ligne, on insère la trame dans influx
 				del trame['ADCO']  # adresse du compteur : confidentiel!
 				time_measure = time.time()
+
+				# modification des données pour influxdb
+				trame = modify_data(trame)
 
 				# insertion dans influxdb
 				add_measures(trame, time_measure)

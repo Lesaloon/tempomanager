@@ -118,8 +118,8 @@ def modify_data(trame):
 	# the voltage is between 0 and 3.3V
 	# the current is between 0 and 15*3.3 = 49.5A
 	#the clamp is a 15a/1v clamp
-	current1 = solar1.voltage * 15
-	current2 = solar2.voltage * 15
+	current1 = solar1.voltage * 5
+	current2 = solar2.voltage * 5
 
 	# add the current to the trame
 	trame["ISOL1"] = current1

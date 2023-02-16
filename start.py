@@ -49,8 +49,8 @@ from adafruit_ads1x15.analog_in import AnalogIn
 # configure the ADC+PGA I2C board
 i2c = busio.I2C(board.SCL, board.SDA)
 ads = ADS.ADS1015(i2c)
-solar1 = AnalogIn(ads, ADS.P0, ADS.P1)
-solar2 = AnalogIn(ads, ADS.P2, ADS.P3)
+solar1 = AnalogIn(ads, ADS.P1, ADS.P0)
+solar2 = AnalogIn(ads, ADS.P3, ADS.P2)
 
 
 # configuration

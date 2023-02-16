@@ -115,16 +115,24 @@ def modify_data(trame):
 	# add the solar panel data
 
 	# convert the voltage to a current
-	# the voltage is between 0 and 3.3V
-	# the current is between 0 and 5*3.3 = 16.5A
+	# the voltage is between 0 and 5v
 	# the clamp is a 15a/1v clamp
-	# the module is a 16 bit ADC so the resolution is 3.3/65536 = 0.00005035400390625 and my margin of error is 0.00005035400390625*1000 = 0.05mA
+	# the current is between 0 and (5a/1v)*5v = 25A
+	# the module is a 16 bit ADC so margin of error is 0.000015 = 0.0015% of the current so 0.15A
 	current1 = solar1.voltage * 5
 	current2 = solar2.voltage * 5
 
 	# add the current to the trame
-	trame["ISOL1"] = current1
-	trame["ISOL2"] = current2
+	trame["ISOL1"] = {
+		"current": current1,
+		"voltage": solar1.voltage,
+		"value": solar1.value
+	}
+	trame["ISOL2"] = {
+		"current": current2,
+		"voltage": solar2.voltage,
+		"value": solar2.value
+	}
 
 	return trame
 

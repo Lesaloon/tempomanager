@@ -49,8 +49,8 @@ from adafruit_ads1x15.analog_in import AnalogIn
 # configure the ADC+PGA I2C board
 i2c = busio.I2C(board.SCL, board.SDA)
 ads = ADS.ADS1015(i2c)
-solar1 = AnalogIn(ads, ADS.P0)
-solar2 = AnalogIn(ads, ADS.P1)
+solar1 = AnalogIn(ads, ADS.P0, ADS.P1)
+solar2 = AnalogIn(ads, ADS.P2, ADS.P3)
 
 
 # configuration
@@ -116,8 +116,9 @@ def modify_data(trame):
 
 	# convert the voltage to a current
 	# the voltage is between 0 and 3.3V
-	# the current is between 0 and 15*3.3 = 49.5A
-	#the clamp is a 15a/1v clamp
+	# the current is between 0 and 5*3.3 = 16.5A
+	# the clamp is a 15a/1v clamp
+	# the module is a 16 bit ADC so the resolution is 3.3/65536 = 0.00005035400390625 and my margin of error is 0.00005035400390625*1000 = 0.05mA
 	current1 = solar1.voltage * 5
 	current2 = solar2.voltage * 5
 

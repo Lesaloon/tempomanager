@@ -123,16 +123,8 @@ def modify_data(trame):
 	current2 = solar2.voltage * -5
 
 	# add the current to the trame
-	trame["ISOL1"] = {
-		"current": current1,
-		"voltage": solar1.voltage,
-		"value": solar1.value
-	}
-	trame["ISOL2"] = {
-		"current": current2,
-		"voltage": solar2.voltage,
-		"value": solar2.value
-	}
+	trame["ISOL1"] = current1
+	trame["ISOL2"] = current2
 
 	return trame
 

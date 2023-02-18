@@ -49,7 +49,7 @@ from adafruit_ads1x15.analog_in import AnalogIn
 # configure the ADC+PGA I2C board
 i2c = busio.I2C(board.SCL, board.SDA)
 ads = ADS.ADS1015(i2c)
-solar1 = AnalogIn(ads, ADS.P0, ADS.P1)
+solar1 = AnalogIn(ads, ADS.P0)
 solar2 = AnalogIn(ads, ADS.P2, ADS.P3)
 
 
@@ -119,8 +119,12 @@ def modify_data(trame):
 	# the clamp is a 15a/1v clamp
 	# the current is between 0 and (5a/1v)*5v = 25A
 	# the module is a 16 bit ADC so margin of error is 0.000015 = 0.0015% of the current so 0.15A
-	current1 = solar1.voltage * -5
-	current2 = solar2.voltage * -5
+	current1 = solar1.voltage * 5
+	current2 = solar2.voltage * 5
+
+	# since we have a 0.15A margin of error, we need round the current to the nearest 0.15A
+	current1 = round(current1 / 0.15) * 0.15
+	current2 = round(current2 / 0.15) * 0.15
 
 	# add the current to the trame
 	trame["ISOL1"] = current1
